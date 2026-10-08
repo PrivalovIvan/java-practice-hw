@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: The financial management system of the enterprise
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yml
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+custom:
+  startup-logger:
+    enabled: true
