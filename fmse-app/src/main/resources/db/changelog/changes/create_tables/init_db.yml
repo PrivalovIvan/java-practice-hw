@@ -1,0 +1,311 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1-create-departments
+      author: admin
+      changes:
+        - createTable:
+            tableName: departments
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: code
+                  type: VARCHAR(255)
+              - column:
+                  name: responsible_id
+                  type: UUID
+
+  - changeSet:
+      id: 2-create-users
+      author: admin
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(50)
+              - column:
+                  name: department_id
+                  type: UUID
+
+  - changeSet:
+      id: 3-add-fks-users-departments
+      author: admin
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: departments
+            baseColumnNames: responsible_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_dept_responsible
+        - addForeignKeyConstraint:
+            baseTableName: users
+            baseColumnNames: department_id
+            referencedTableName: departments
+            referencedColumnNames: id
+            constraintName: fk_user_department
+
+  - changeSet:
+      id: 4-create-categories
+      author: admin
+      changes:
+        - createTable:
+            tableName: categories
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: parent_id
+                  type: UUID
+        - addForeignKeyConstraint:
+            baseTableName: categories
+            baseColumnNames: parent_id
+            referencedTableName: categories
+            referencedColumnNames: id
+            constraintName: fk_category_parent
+
+  - changeSet:
+      id: 5-create-counterparties
+      author: admin
+      changes:
+        - createTable:
+            tableName: counterparties
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: tin
+                  type: VARCHAR(255)
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+
+  - changeSet:
+      id: 6-create-accounts
+      author: admin
+      changes:
+        - createTable:
+            tableName: accounts
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: balance
+                  type: DECIMAL(19, 2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency
+                  type: VARCHAR(50)
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+              - column:
+                  name: department_id
+                  type: UUID
+        - addForeignKeyConstraint:
+            baseTableName: accounts
+            baseColumnNames: department_id
+            referencedTableName: departments
+            referencedColumnNames: id
+            constraintName: fk_account_department
+
+  - changeSet:
+      id: 7-create-budgets
+      author: admin
+      changes:
+        - createTable:
+            tableName: budgets
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: amount
+                  type: DECIMAL(19, 2)
+              - column:
+                  name: start_date
+                  type: DATE
+              - column:
+                  name: end_date
+                  type: DATE
+              - column:
+                  name: category_id
+                  type: UUID
+              - column:
+                  name: department_id
+                  type: UUID
+        - addForeignKeyConstraint:
+            baseTableName: budgets
+            baseColumnNames: category_id
+            referencedTableName: categories
+            referencedColumnNames: id
+            constraintName: fk_budget_category
+        - addForeignKeyConstraint:
+            baseTableName: budgets
+            baseColumnNames: department_id
+            referencedTableName: departments
+            referencedColumnNames: id
+            constraintName: fk_budget_department
+
+  - changeSet:
+      id: 8-create-transactions
+      author: admin
+      changes:
+        - createTable:
+            tableName: transactions
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: amount
+                  type: DECIMAL(19, 2)
+              - column:
+                  name: currency
+                  type: VARCHAR(50)
+              - column:
+                  name: date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+              - column:
+                  name: author_id
+                  type: UUID
+              - column:
+                  name: category_id
+                  type: UUID
+              - column:
+                  name: counterpart_id
+                  type: UUID
+              - column:
+                  name: from_account_id
+                  type: UUID
+              - column:
+                  name: to_account_id
+                  type: UUID
+              - column:
+                  name: original_transaction_id
+                  type: UUID
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: author_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_tx_author
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: category_id
+            referencedTableName: categories
+            referencedColumnNames: id
+            constraintName: fk_tx_category
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: counterpart_id
+            referencedTableName: counterparties
+            referencedColumnNames: id
+            constraintName: fk_tx_counterpart
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: from_account_id
+            referencedTableName: accounts
+            referencedColumnNames: id
+            constraintName: fk_tx_from_account
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: to_account_id
+            referencedTableName: accounts
+            referencedColumnNames: id
+            constraintName: fk_tx_to_account
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: original_transaction_id
+            referencedTableName: transactions
+            referencedColumnNames: id
+            constraintName: fk_tx_original
+
+  - changeSet:
+      id: 9-create-audit-logs
+      author: admin
+      changes:
+        - createTable:
+            tableName: audit_logs
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: action
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author_email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timestamp
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: transaction_id
+                  type: UUID
+                  constraints:
+                    nullable: false
